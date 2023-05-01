@@ -1,0 +1,183 @@
+{% extends 'seller/base.html' %}
+
+{% block content %}
+<div class="survey">
+    <h1>Watermelon Markets - Seller Survey</h1>
+    <div id="thanks" class="invis">
+        <h1>Thanks!</h1>
+        <a href="{% url 'seller_intake_survey_results' %}">View Results</a>
+    </div>
+    {% csrf_token %}
+    {% comment %} Form questions start here {% endcomment %}
+    <div class="form-group" id="show1">
+        <label for="name">What is the name of your store?</label>
+        <input type="text" class="form-control" id="name" name="name" placeholder="Enter name">
+        <button type="submit" class="btn btn-primary" onClick="handleShow(2);">Next</button>
+    </div>
+    <div class="form-group invis" id="show2">
+        <label for="balance">What is the balance left on your gift card?</label>
+        <input type="number" class="form-control" id="balance" name="balance" placeholder="Enter balance">
+        {% include 'currency_dropdown.html' with unique_id='unique_id_1' %}
+        <button class="btn btn-secondary" onClick="handleBack();">Back</button>
+        <button type="submit" class="btn btn-primary" onClick="handleShow(3);">Next</button>
+    </div>
+    <div class="form-group invis" id="show3">
+        <label for="price">What price are you selling at?</label>
+        <input type="number" class="form-control" id="price" name="price" placeholder="Enter price">
+        {% include 'currency_dropdown.html' with unique_id='unique_id_2' %}
+        <button class="btn btn-secondary" onClick="handleBack();">Back</button>
+        <button type="submit" class="btn btn-primary" onClick="handleShow(4);">Next</button>
+    </div>
+    <div class="form-group invis" id="show4">
+        <label for="network">Which network would you like to receive funds at?</label>
+        <div>{% comment %} div to stack select and label {% endcomment %}
+        <select id="network" name="network">
+            <option disabled selected value> -- select an option -- </option>
+            <option value="Polygon">Polygon</option>
+            <option value="Ethereum">Ethereum</option>
+        </select>
+        <button class="btn btn-secondary" onClick="handleBack();">Back</button>
+        <button type="submit" class="btn btn-primary" onClick="handleShow(5);">Next</button>
+        </div>
+    </div>
+    <div class="form-group invis" id="show5">
+        <label for="address">What address do you want to receive funds at?</label>
+        <input type="text" class="form-control" id="address" name="address" placeholder="Enter address">
+        <button class="btn btn-secondary" onClick="handleBack();">Back</button>
+        <button type="submit" class="btn btn-primary" onClick="handleShow(6);">Next</button>
+    </div>
+    <div class="form-group invis" id="show6">
+        <label for="deposit_or_validate">Would you prefer to provide a deposit or the card information for validation?</label>
+        <div>{% comment %} div to stack select and label {% endcomment %}
+        <select id="deposit_or_validate" name="deposit_or_validate">
+            <option disabled selected value> -- select an option -- </option>
+            <option value="deposit">Deposit</option>
+            <option value="validation">Validate</option>
+        </select>
+        <button class="btn btn-secondary" onClick="handleBack();">Back</button>
+        <button type="submit" class="btn btn-primary" onClick="handleShow(7, 'deposit_or_validate');">Next</button>
+        </div>
+    </div>
+    <div class="form-group invis" id="show7">
+        <label for="if_deposit">Please make sure you deposit via the smart contract</label>
+        <div>{% comment %} div to stack select and label {% endcomment %}
+        <input style="margin: 20px auto; display: block;" type="checkbox" class="form-control" id="deposit_step" name="deposit_step" onClick="reenableButton();" placeholder="Enter deposit step">
+        <button class="btn btn-secondary" onClick="handleBack();">Back</button>
+        <button id="reenable" type="submit" class="btn btn-primary" disabled onClick="handleShow(10);">Next</button>
+        </div>
+    </div>
+    <div class="form-group invis" id="show8">
+        <label for="if_card">What is the gift card number?</label>
+        <input type="text" class="form-control" id="card_number" name="card_number" placeholder="Enter card number">
+        <button class="btn btn-secondary" onClick="handleBack();">Back</button>
+        <button type="submit" class="btn btn-primary" onClick="handleShow(9);">Next</button>
+    </div>
+    <div class="form-group invis" id="show9">
+        <label for="if_card2">What is the gift card's PIN and/or expiration date?</label>
+        <input type="text" class="form-control" id="card_pin" name="card_pin" placeholder="Enter pin">
+        <button class="btn btn-secondary" onClick="handleBack();">Back</button>
+        <button type="submit" class="btn btn-primary" onClick="handleShow(10);">Next</button>
+    </div>
+    <div class="form-group invis" id="show10">
+        <label for="email">What is your email address?</label>
+        <input type="text" class="form-control" id="email" name="email" placeholder="Enter email">
+        <button class="btn btn-secondary" onClick="handleBack();">Back</button>
+        <button type="submit" class="btn btn-primary" onClick="showThanks();">Finish</button>
+    </div>
+</div>
+<script>
+    var trace = [];
+    var create_entry = true;
+    var survey_id = null;
+
+    function ValidateEmail(mail) // https://www.w3resource.com/javascript/form/email-validation.php
+    {
+        if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail))
+        {
+            return (true)
+        }
+        alert("You have entered an invalid email address!")
+        return (false)
+    }
+
+    function showThanks(){
+        // lets grab the email and make sure it's valid
+        var email = document.getElementById("email").value;
+        if (!ValidateEmail(email)){
+            return;
+        }
+        // show thanks message at the end
+        ajaxCall();
+        var show = document.getElementById("show10");
+        show.classList.add("invis");
+        var thanks = document.getElementById("thanks");
+        thanks.classList.remove("invis");
+    }
+    function reenableButton(){
+        document.getElementById("reenable").toggleAttribute("disabled");
+    }
+    function handleShow(num, branchOff=""){
+        // dictates where to go next
+        if (branchOff !== ""){
+            if (document.getElementById(branchOff).value === "deposit"){
+                num = 7;
+            } else {
+                num = 8;
+            }
+        }
+        trace.push(num);
+        var show = document.getElementById("show"+num);
+        for (var i = 1; i <= 10; i++) {
+            var hide = document.getElementById("show"+i);
+            hide.classList.add("invis");
+        }
+        show.classList.remove("invis");
+        ajaxCall();
+        create_entry = false;
+    }
+
+    function ajaxCall(){
+        // ajax call to the backend
+        $.ajax({
+            type: "POST",
+            url: "{% url 'seller_intake_survey' %}",
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                create_entry: create_entry,
+                survey_id: survey_id,
+                store_name: document.getElementById("name").value,
+                balance: document.getElementById("balance").value,
+                balance_currency: document.getElementById("currency_unique_id_1").value,
+                price: document.getElementById("price").value,
+                price_currency: document.getElementById("currency_unique_id_2").value,
+                network: document.getElementById("network").value,
+                address: document.getElementById("address").value,
+                deposit_or_validate: document.getElementById("deposit_or_validate").value,
+                deposit_step: document.getElementById("deposit_step").checked,
+                card_number: document.getElementById("card_number").value,
+                card_pin: document.getElementById("card_pin").value,
+                email: document.getElementById("email").value,
+            },
+            success: function(data){
+                console.log(data);
+                survey_id = data;
+            }
+        });
+    }
+
+    function handleBack(){
+        // backtraces survey logic
+        var num = trace.pop();
+        var show = document.getElementById("show"+num);
+        show.classList.add("invis");
+        if (trace.length === 0){
+            var show = document.getElementById("show1");
+            show.classList.remove("invis");
+            return;
+        }
+        var show = document.getElementById("show"+trace[trace.length-1]);
+        show.classList.remove("invis");
+    }
+</script>
+
+{% endblock content %}

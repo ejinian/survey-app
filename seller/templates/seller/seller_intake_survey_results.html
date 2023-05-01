@@ -1,0 +1,43 @@
+{% extends 'seller/base.html' %}
+
+{% block content %}
+    {% if responses %}
+    <div class="container-fluid">
+        <h1>Survey Responses</h1>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Store Name</th>
+                    <th>Balance</th>
+                    <th>Price</th>
+                    <th>Network</th>
+                    <th>Address</th>
+                    <th>Deposit or Validate</th>
+                    <th>Deposit Step</th>
+                    <th>Card Number</th>
+                    <th>Card Pin</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for response in responses %}
+                    <tr>
+                        <td>{{ response.store_name }}</td>
+                        <td>{{ response.balance }} {{ response.balance_currency }}</td>
+                        <td>{{ response.price }} {{ response.price_currency }}</td>
+                        <td>{{ response.network }}</td>
+                        <td>{{ response.address }}</td>
+                        <td>{{ response.deposit_or_validate }}</td>
+                        <td>{{ response.deposit_step }}</td>
+                        <td>{{ response.card_number }}</td>
+                        <td>{{ response.card_pin }}</td>
+                        <td>{{ response.email }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <p>No results to display.</p>
+    {% endif %}
+{% endblock content %}

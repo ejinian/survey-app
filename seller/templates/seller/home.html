@@ -1,0 +1,9 @@
+{% extends 'seller/base.html' %}
+{% block content %}
+    <div class="container">
+        <h1>Watermelon Markets Survey</h1>
+        <h2>Made with Django</h2>
+        <a href="{% url 'seller_intake_survey' %}" class="btn btn-primary">Take Survey</a>
+        <a href="{% url 'seller_intake_survey_results' %}" class="btn btn-secondary" style="margin-top: 20px;">View Results</a>
+    </div>
+{% endblock %}
