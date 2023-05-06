@@ -1,6 +1,6 @@
-# watermelon-markets-survey
+# Simple Survey App
 
-## Gift Card Survey for Watermelon Markets
+## Gift Card Survey
 
 Design:
 1. Using Ajax calls to dynamically update unique survey entries
